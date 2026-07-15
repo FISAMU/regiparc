@@ -27,7 +27,7 @@ git commit -m "Config déploiement Vercel + Render"
 git push
 ```
 
-Modèle des variables backend : `backend/.env.render.example`  
+Modèle des variables backend : `backend/env.render.example`  
 Modèle dev local : `backend/.env.example`
 ---
 

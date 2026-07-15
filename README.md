@@ -33,7 +33,7 @@ Guide : [`docs/DEPLOY-VERCEL-RENDER.md`](./docs/DEPLOY-VERCEL-RENDER.md)
 | Backend | Render | Root = `backend` + env dans le dashboard |
 | MySQL | Aiven | Déjà en place |
 
-Exemple des variables Render : [`backend/.env.render.example`](./backend/.env.render.example)
+Exemple des variables Render : [`backend/env.render.example`](./backend/env.render.example)
 
 ## Sécurité
 
