@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ===== Modèles d'authentification better-auth =====
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          String    @default("viewer")
+  
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ===== Modèles métier du backend Django =====
+model Categorie {
+  idCategorie   String      @id @default(cuid())
+  nomCategorie  String      @db.VarChar(100)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  equipements  Equipement[]
+}
+
+model Employe {
+  idEmploye     String      @id @default(cuid())
+  nomEmploye    String      @db.VarChar(100)
+  prenomEmploye String      @db.VarChar(100)
+  fonction      String      @db.VarChar(100)
+  email         String      @unique @db.VarChar(150)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  equipements  Equipement[]
+}
+
+model Service {
+  idService     String      @id @default(cuid())
+  nomService    String      @db.VarChar(100)
+  localisation  String      @db.VarChar(150)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  equipements  Equipement[]
+}
+
+model Equipement {
+  idEquipement     String         @id @default(cuid())
+  codeInventaire   String         @unique @db.VarChar(100)
+  designation      String         @db.VarChar(150)
+  marque           String         @db.VarChar(100)
+  modele           String         @db.VarChar(100)
+  numSerie         String         @unique @db.VarChar(100)
+  dateAcquisition  DateTime       @db.Date
+  valeur           Decimal        @db.Decimal(10, 2)
+  etat             String         @db.VarChar(50)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  
+  categorieId      String
+  categorie        Categorie      @relation(fields: [categorieId], references: [idCategorie], onDelete: Restrict)
+  
+  employeId        String?
+  employe          Employe?       @relation(fields: [employeId], references: [idEmploye], onDelete: SetNull)
+  
+  serviceId        String
+  service          Service        @relation(fields: [serviceId], references: [idService], onDelete: Restrict)
+  
+  affectations     Affectation[]
+  maintenances     Maintenance[]
+}
+
+model Affectation {
+  idAffectation  String      @id @default(cuid())
+  dateAffectation DateTime   @db.Date
+  dateRetour     DateTime?   @db.Date
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  
+  equipementId   String
+  equipement     Equipement  @relation(fields: [equipementId], references: [idEquipement], onDelete: Cascade)
+}
+
+model Maintenance {
+  idMaintenance  String      @id @default(cuid())
+  dateMaintenance DateTime   @db.Date
+  typeMaintenance String     @db.VarChar(100)
+  description     String      @db.Text
+  cout            Decimal     @db.Decimal(10, 2)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  equipementId    String
+  equipement      Equipement  @relation(fields: [equipementId], references: [idEquipement], onDelete: Cascade)
+}

@@ -1,0 +1,53 @@
+import Signup from "@/components/Auth/Signup";
+import BackgroundSlider from "@/components/Auth/BackgroundSlider";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Sign up",
+};
+
+export default function SignUp() {
+  return (
+    <div className="flex min-h-screen flex-wrap">
+      <div className="w-full xl:w-1/2 flex items-center justify-center min-h-screen">
+        <div className="mx-auto w-[570px] p-4 sm:p-12.5 xl:p-15">
+          <Signup />
+        </div>
+      </div>
+
+      <div className="hidden w-full xl:block xl:w-1/2 relative min-h-screen overflow-hidden">
+        {/* Images d'équipements informatiques en arrière-plan (défilement) */}
+        <BackgroundSlider />
+        
+        {/* Dégradé bleu au-dessus de l'image */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900 via-blue-700 to-blue-500 opacity-90"></div>
+        
+        {/* Contenu au-dessus du dégradé */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full p-6">
+          {/* Logo regideso en blanc */}
+          <div className="mb-12 -mt-20">
+            <Image
+              src={"/logo-regideso.png"}
+              alt="Regideso Logo"
+              width={220}
+              height={55}
+              className="brightness-0 invert"
+            />
+          </div>
+          
+          {/* Texte de bienvenue */}
+          <div className="text-center text-white max-w-lg">
+            <h1 className="mb-4 text-4xl font-extrabold tracking-tight">
+              Rejoignez RegiParc
+            </h1>
+            <p className="text-lg font-medium leading-relaxed text-blue-50">
+              Créez votre compte et accédez à la plateforme de gestion centralisée du parc informatique et réseau de la Regideso.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
