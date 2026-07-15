@@ -27,7 +27,13 @@ npm install
 npm run dev
 ```
 
+## Déploiement (Oracle Cloud Always Free)
+
+Guide complet : [`docs/DEPLOY-ORACLE.md`](./docs/DEPLOY-ORACLE.md)
+
+En résumé : une VM Always Free + Docker Compose (nginx + Next.js + Django), MySQL chez Aiven.
+
 ## Sécurité
 
-- Ne **jamais** pousser `backend/.env` ni `frontend/.../.env.local`
-- Utiliser `.env.example` comme modèle
+- Ne **jamais** pousser `backend/.env` ni `.env.production`
+- Utiliser `.env.example` / `.env.production.example` comme modèles

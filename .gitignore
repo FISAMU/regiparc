@@ -5,6 +5,7 @@
 !**/.env.example
 .env.local
 **/.env.local
+.env.production
 *.pem
 
 # Python
