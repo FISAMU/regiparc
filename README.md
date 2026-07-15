@@ -1,43 +1,40 @@
 # RegiParc
 
-Gestion du parc informatique (équipements, employés, maintenances, affectations) — API Django + dashboard Next.js.
+Gestion du parc informatique — API Django + dashboard Next.js.
 
-## Démarrer
+## Démarrer en local
 
-Voir le guide détaillé (structure complète, où modifier quoi) :
-
-👉 [`frontend/nextjs-admin-dashboard/README.md`](./frontend/nextjs-admin-dashboard/README.md)
+Guide structure : [`frontend/nextjs-admin-dashboard/README.md`](./frontend/nextjs-admin-dashboard/README.md)
 
 ### Backend
-
 ```bash
 cd backend
-.\.venv\Scripts\activate   # Windows
-# Copier .env.example → .env et renseigner les valeurs
+.\.venv\Scripts\activate
+# Copier .env.example → .env
 python manage.py migrate
 python manage.py runserver
 ```
 
 ### Frontend
-
 ```bash
 cd frontend/nextjs-admin-dashboard
 npm install
-# Créer .env.local avec NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+# .env.local → NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
 npm run dev
 ```
 
-## Déploiement (recommandé)
+## Déploiement (Vercel + Render)
 
-**Vercel + Render** (gratuit, simple) → [`docs/DEPLOY-VERCEL-RENDER.md`](./docs/DEPLOY-VERCEL-RENDER.md)
+Guide : [`docs/DEPLOY-VERCEL-RENDER.md`](./docs/DEPLOY-VERCEL-RENDER.md)
 
-- Frontend Next.js → Vercel  
-- Backend Django → Render  
-- MySQL → Aiven (existant)
+| Partie | Hébergeur | Config |
+|--------|-----------|--------|
+| Frontend | Vercel | Root = `frontend/nextjs-admin-dashboard` |
+| Backend | Render | Root = `backend` + env dans le dashboard |
+| MySQL | Aiven | Déjà en place |
 
-> Oracle Always Free (plus technique) : [`docs/DEPLOY-ORACLE.md`](./docs/DEPLOY-ORACLE.md)
+Exemple des variables Render : [`backend/.env.render.example`](./backend/.env.render.example)
 
 ## Sécurité
 
-- Ne **jamais** pousser `backend/.env` ni `.env.production`
-- Utiliser `.env.example` / `.env.production.example` comme modèles
+Ne jamais committer `backend/.env` ni secrets. Utiliser les fichiers `.example`.

@@ -1,6 +1,6 @@
 # Déploiement RegiParc — Vercel (frontend) + Render (backend)
 
-Gratuit, plus simple qu’Oracle. Limite Render : le backend **s’endort après ~15 min** sans trafic (le 1er appel peut prendre ~30–60 s).
+Gratuit. Limite Render : le backend **s’endort après ~15 min** sans trafic (le 1er appel peut prendre ~30–60 s).
 
 ```
 Navigateur
@@ -27,6 +27,8 @@ git commit -m "Config déploiement Vercel + Render"
 git push
 ```
 
+Modèle des variables backend : `backend/.env.render.example`  
+Modèle dev local : `backend/.env.example`
 ---
 
 ## 1. Backend sur Render

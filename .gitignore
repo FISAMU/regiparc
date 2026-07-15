@@ -3,9 +3,11 @@
 **/.env
 !.env.example
 !**/.env.example
+!**/.env.render.example
 .env.local
 **/.env.local
 .env.production
+.env.render
 *.pem
 
 # Python

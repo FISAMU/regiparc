@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS — frontend Next (dev + production via variables d'environnement)
+# CORS — frontend Next (localhost + URL Vercel en prod via env Render)
 CORS_ALLOWED_ORIGINS = env.list(
     "CORS_ALLOWED_ORIGINS",
     default=[
@@ -72,7 +72,7 @@ CORS_ALLOWED_ORIGINS = env.list(
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-# Derrière nginx / reverse proxy (Oracle Cloud)
+# Derrière le proxy HTTPS de Render (et autres PaaS)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
