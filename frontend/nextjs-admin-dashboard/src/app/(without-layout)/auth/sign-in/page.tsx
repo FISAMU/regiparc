@@ -40,7 +40,7 @@ export default function SignIn() {
           {/* Texte de bienvenue */}
           <div className="text-center text-white max-w-lg">
             <h1 className="mb-4 text-4xl font-extrabold tracking-tight">
-              Bienvenue sur RegiParc !
+              Bienvenue sur RegiParc
             </h1>
             <p className="text-lg font-medium leading-relaxed text-blue-50">
               Votre plateforme centralisée pour la gestion, le suivi et la maintenance de l'ensemble du parc informatique et réseau de la Regideso.
