@@ -1,4 +1,4 @@
-# Build Render — migrate + statics
+# Build Render — dépendances + statics + migrations
 #!/usr/bin/env bash
 set -o errexit
 
