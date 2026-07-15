@@ -22,11 +22,7 @@ DEBUG = env('DEBUG')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
-# Hôtes autorisés (ex. "localhost,127.0.0.1,regiparc.example.com")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
-
-# Origines de confiance pour CSRF (schéma + domaine, sans slash final)
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -52,7 +48,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,20 +56,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS — frontend Next (localhost + URL Vercel en prod via env Render)
-CORS_ALLOWED_ORIGINS = env.list(
-    "CORS_ALLOWED_ORIGINS",
-    default=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
-)
+# CORS - Autoriser le frontend Next.js 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 CORS_ALLOW_ALL_ORIGINS = False
-
-# Derrière le proxy HTTPS de Render (et autres PaaS)
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-USE_X_FORWARDED_HOST = True
 
 # DRF — Authentification par Token
 REST_FRAMEWORK = {
@@ -111,14 +99,6 @@ WSGI_APPLICATION = 'mon_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-_db_options = {
-    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-    'connect_timeout': 10,
-}
-# Aiven exige SSL ; mettre DB_SSL=False seulement pour un MySQL local sans SSL
-if env.bool('DB_SSL', default=True):
-    _db_options['ssl'] = {'ssl': True}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -127,8 +107,11 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD'),
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
-        'CONN_MAX_AGE': 60,
-        'OPTIONS': _db_options,
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'connect_timeout': 10,
+        },
     }
 }
 
@@ -168,15 +151,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
 
 JAZZMIN_SETTINGS = {
     # Titre de l'onglet du navigateur

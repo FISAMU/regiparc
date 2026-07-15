@@ -1,7 +1,5 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-  // Sur Vercel : pas de standalone. Ailleurs (build local) : standalone optionnel.
-  ...(process.env.VERCEL ? {} : { output: "standalone" }),
   devIndicators: false,
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
