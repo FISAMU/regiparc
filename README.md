@@ -27,11 +27,15 @@ npm install
 npm run dev
 ```
 
-## Déploiement (Oracle Cloud Always Free)
+## Déploiement (recommandé)
 
-Guide complet : [`docs/DEPLOY-ORACLE.md`](./docs/DEPLOY-ORACLE.md)
+**Vercel + Render** (gratuit, simple) → [`docs/DEPLOY-VERCEL-RENDER.md`](./docs/DEPLOY-VERCEL-RENDER.md)
 
-En résumé : une VM Always Free + Docker Compose (nginx + Next.js + Django), MySQL chez Aiven.
+- Frontend Next.js → Vercel  
+- Backend Django → Render  
+- MySQL → Aiven (existant)
+
+> Oracle Always Free (plus technique) : [`docs/DEPLOY-ORACLE.md`](./docs/DEPLOY-ORACLE.md)
 
 ## Sécurité
 
