@@ -27,6 +27,10 @@ npm install
 npm run dev
 ```
 
+## Déploiement
+
+Guide pas à pas : [`docs/DEPLOY.md`](./docs/DEPLOY.md) (Render + Vercel + Aiven)
+
 ## Sécurité
 
 - Ne **jamais** pousser `backend/.env` ni `frontend/.../.env.local`
