@@ -4,6 +4,9 @@ Envoi d'emails RegiParc.
 Sur Render (free), le SMTP (port 587/465) est souvent bloqué → timeout.
 On privilégie Resend (API HTTPS :443) en production.
 En local, SMTP Gmail reste possible.
+
+Important Resend : un header User-Agent est OBLIGATOIRE
+(sinon Cloudflare renvoie 403 / error code 1010).
 """
 from __future__ import annotations
 
@@ -20,18 +23,25 @@ logger = logging.getLogger(__name__)
 
 def send_app_email(*, to_email: str, subject: str, body: str) -> None:
     """Envoie un email texte. Lève une Exception en cas d'échec."""
-    resend_key = getattr(settings, "RESEND_API_KEY", "") or ""
-    if resend_key.strip():
+    resend_key = (getattr(settings, "RESEND_API_KEY", "") or "").strip()
+    if resend_key:
         _send_via_resend(to_email=to_email, subject=subject, body=body)
         return
+
+    if not getattr(settings, "DEBUG", False):
+        raise RuntimeError(
+            "RESEND_API_KEY manquant sur Render. "
+            "Ajoutez RESEND_API_KEY (clé re_...) dans Environment, "
+            "puis redéployez. Le SMTP Gmail ne fonctionne pas sur Render free."
+        )
 
     if not getattr(settings, "EMAIL_HOST_USER", None) or not getattr(
         settings, "EMAIL_HOST_PASSWORD", None
     ):
         raise RuntimeError(
             "Aucun canal email configuré. "
-            "Sur Render, ajoutez RESEND_API_KEY (recommandé). "
-            "En local, configurez EMAIL_HOST_USER / EMAIL_HOST_PASSWORD."
+            "En local: EMAIL_HOST_USER / EMAIL_HOST_PASSWORD. "
+            "Sur Render: RESEND_API_KEY."
         )
 
     send_mail(
@@ -43,8 +53,27 @@ def send_app_email(*, to_email: str, subject: str, body: str) -> None:
     )
 
 
+def _normalize_resend_from(from_email: str) -> str:
+    """
+    Resend refuse d'envoyer depuis @gmail.com / domaines non vérifiés.
+    En test, on force onboarding@resend.dev.
+    """
+    value = (from_email or "").strip()
+    lower = value.lower()
+    if (
+        not value
+        or "@gmail.com" in lower
+        or "@googlemail.com" in lower
+        or "@hotmail." in lower
+        or "@outlook." in lower
+        or "@yahoo." in lower
+    ):
+        return "RegiParc <onboarding@resend.dev>"
+    return value
+
+
 def _send_via_resend(*, to_email: str, subject: str, body: str) -> None:
-    from_email = (
+    from_email = _normalize_resend_from(
         getattr(settings, "RESEND_FROM_EMAIL", None)
         or getattr(settings, "DEFAULT_FROM_EMAIL", None)
         or "RegiParc <onboarding@resend.dev>"
@@ -62,6 +91,9 @@ def _send_via_resend(*, to_email: str, subject: str, body: str) -> None:
         headers={
             "Authorization": f"Bearer {settings.RESEND_API_KEY.strip()}",
             "Content-Type": "application/json",
+            # Obligatoire : sans User-Agent → Cloudflare 403 / code 1010
+            "User-Agent": "RegiParc/1.0 (Django; Render)",
+            "Accept": "application/json",
         },
         method="POST",
     )
@@ -73,7 +105,7 @@ def _send_via_resend(*, to_email: str, subject: str, body: str) -> None:
         logger.error("Resend HTTP %s: %s", exc.code, detail)
         raise RuntimeError(
             f"Resend a refusé l'envoi (HTTP {exc.code}). "
-            "Vérifiez RESEND_API_KEY et RESEND_FROM_EMAIL."
+            f"Détail: {detail[:300]}"
         ) from exc
     except Exception as exc:
         logger.exception("Échec Resend: %s", exc)
