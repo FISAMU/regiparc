@@ -31,6 +31,24 @@ npm run dev
 
 Guide pas à pas : [`docs/DEPLOY.md`](./docs/DEPLOY.md) (Render + Vercel + Aiven)
 
+## Email / reset mot de passe
+
+Render **free bloque le SMTP** (port 587) → timeout Gmail.
+
+Solution : **Resend** (API HTTPS, gratuit) :
+
+1. Compte sur https://resend.com  
+2. Créer une API Key  
+3. Sur Render → Environment :
+   ```
+   RESEND_API_KEY=re_xxxx
+   RESEND_FROM_EMAIL=RegiParc <onboarding@resend.dev>
+   DEFAULT_FROM_EMAIL=RegiParc <onboarding@resend.dev>
+   ```
+4. Redeploy, puis tester forgot-password
+
+Note : avec `onboarding@resend.dev`, Resend envoie surtout vers l’email de ton compte Resend. Pour d’autres destinataires, vérifie un domaine dans Resend.
+
 ## Sécurité
 
 - Ne **jamais** pousser `backend/.env` ni `frontend/.../.env.local`

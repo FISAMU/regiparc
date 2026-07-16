@@ -195,7 +195,7 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         import random
         from django.conf import settings
-        from django.core.mail import send_mail
+        from apps.email_utils import send_app_email
 
         email = (request.data.get('email') or '').strip()
         if not email:
@@ -234,28 +234,8 @@ class PasswordResetRequestView(APIView):
             f'— Équipe RegiParc'
         )
 
-        if not getattr(settings, 'EMAIL_HOST_USER', None) or not getattr(
-            settings, 'EMAIL_HOST_PASSWORD', None
-        ):
-            return Response(
-                {
-                    'error': (
-                        'SMTP non configuré sur le serveur. '
-                        'Ajoutez EMAIL_HOST_USER et EMAIL_HOST_PASSWORD '
-                        '(mot de passe d\'application Gmail) dans Render → Environment.'
-                    ),
-                },
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
         try:
-            send_mail(
-                subject,
-                body,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
+            send_app_email(to_email=user.email, subject=subject, body=body)
         except Exception as exc:
             import logging
 
@@ -266,8 +246,7 @@ class PasswordResetRequestView(APIView):
                 {
                     'error': (
                         'Impossible d\'envoyer l\'email pour le moment. '
-                        'Vérifiez EMAIL_HOST_USER / EMAIL_HOST_PASSWORD sur Render '
-                        '(mot de passe d\'application Gmail, pas le mot de passe du compte).'
+                        f'Détail: {exc}'
                     ),
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,

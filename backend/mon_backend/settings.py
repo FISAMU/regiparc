@@ -244,3 +244,10 @@ PASSWORD_RESET_CODE_EXPIRY_MINUTES = env.int(
     "PASSWORD_RESET_CODE_EXPIRY_MINUTES",
     default=15,
 )
+
+# Resend (HTTPS) — recommandé sur Render free (SMTP souvent bloqué)
+RESEND_API_KEY = env("RESEND_API_KEY", default="").strip()
+RESEND_FROM_EMAIL = env(
+    "RESEND_FROM_EMAIL",
+    default=DEFAULT_FROM_EMAIL or "RegiParc <onboarding@resend.dev>",
+)
