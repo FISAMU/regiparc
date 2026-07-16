@@ -49,7 +49,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,6 +56,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# WhiteNoise (fichiers statiques sur Render). Optionnel en local si non installé.
+try:
+    import whitenoise  # noqa: F401
+except ImportError:
+    pass
+else:
+    MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # CORS — localhost en dev ; URL Vercel en prod (variables Render)
 CORS_ALLOWED_ORIGINS = env.list(
@@ -163,12 +170,20 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+_staticfiles_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+try:
+    import whitenoise  # noqa: F401
+except ImportError:
+    pass
+else:
+    _staticfiles_backend = "whitenoise.storage.CompressedStaticFilesStorage"
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": _staticfiles_backend,
     },
 }
 
@@ -251,3 +266,14 @@ RESEND_FROM_EMAIL = env(
     "RESEND_FROM_EMAIL",
     default=DEFAULT_FROM_EMAIL or "RegiParc <onboarding@resend.dev>",
 )
+# URL publique du frontend (logo dans les emails HTML)
+FRONTEND_URL = env(
+    "FRONTEND_URL",
+    default="https://regiparc-rglr.vercel.app",
+).rstrip("/")
+EMAIL_LOGO_URL = env(
+    "EMAIL_LOGO_URL",
+    default=f"{FRONTEND_URL}/logo-regideso.png",
+)
+# Optionnel : adresse de réponse (améliore un peu la délivrabilité)
+EMAIL_REPLY_TO = env("EMAIL_REPLY_TO", default="").strip()

@@ -12,6 +12,7 @@ import {
 } from "@/services/notifications.service";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BellIcon } from "./icons";
@@ -21,6 +22,7 @@ export function Notification({ variant = "default" }: { variant?: "default" | "l
   const [notifications, setNotifications] = useState<EquipmentNotification[]>([]);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const router = useRouter();
 
   const notificationCount = notifications.length;
 
@@ -39,15 +41,16 @@ export function Notification({ variant = "default" }: { variant?: "default" | "l
     return () => clearInterval(interval);
   }, [loadNotifications]);
 
-  async function handleResolve(id: string) {
+  async function handleRepair(id: string) {
     setResolvingId(id);
 
     try {
       await notificationsService.resolve(id);
       setNotifications((current) => current.filter((item) => item.id !== id));
-      toast.success("Problème résolu — équipement remis en marche");
+      toast.success("Équipement réparé — état passé à En marche");
+      router.refresh();
     } catch {
-      toast.error("Impossible de résoudre cette alerte");
+      toast.error("Impossible de réparer cet équipement");
     } finally {
       setResolvingId(null);
     }
@@ -108,50 +111,50 @@ export function Notification({ variant = "default" }: { variant?: "default" | "l
             </li>
           )}
 
-          {notifications.map((item) => (
-            <li key={item.id} role="menuitem">
-              <div className="flex items-start gap-2 rounded-lg px-2 py-2 hover:bg-gray-2 dark:hover:bg-dark-3">
-                <Link
-                  href={item.url}
-                  onClick={() => setIsOpen(false)}
-                  className="flex min-w-0 flex-1 items-start gap-3 outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                >
-                  <span className="relative mt-1 flex size-2.5 shrink-0">
-                    <span
-                      className={cn(
-                        "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                        item.type === "warning" ? "bg-warning" : "bg-danger",
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "relative inline-flex size-2.5 animate-pulse rounded-full",
-                        item.type === "warning" ? "bg-warning" : "bg-danger",
-                      )}
-                    />
-                  </span>
+          {notifications.map((item) => {
+            const isRepairing = resolvingId === item.id;
 
-                  <div className="min-w-0">
-                    <strong className="block text-sm font-medium text-dark dark:text-white">
-                      {item.title}
-                    </strong>
-                    <span className="block text-sm font-medium text-dark-5 dark:text-dark-6">
-                      {item.subTitle}
+            return (
+              <li key={item.id} role="menuitem">
+                <div className="flex items-start gap-2 rounded-lg px-2 py-2 hover:bg-gray-2 dark:hover:bg-dark-3">
+                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                    <span className="relative mt-1 flex size-2.5 shrink-0">
+                      <span
+                        className={cn(
+                          "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+                          item.type === "warning" ? "bg-warning" : "bg-danger",
+                        )}
+                      />
+                      <span
+                        className={cn(
+                          "relative inline-flex size-2.5 animate-pulse rounded-full",
+                          item.type === "warning" ? "bg-warning" : "bg-danger",
+                        )}
+                      />
                     </span>
-                  </div>
-                </Link>
 
-                <button
-                  type="button"
-                  onClick={() => handleResolve(item.id)}
-                  disabled={resolvingId === item.id}
-                  className="shrink-0 rounded-md bg-success px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-success/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {resolvingId === item.id ? "..." : "Résoudre"}
-                </button>
-              </div>
-            </li>
-          ))}
+                    <div className="min-w-0">
+                      <strong className="block text-sm font-medium text-dark dark:text-white">
+                        {item.title}
+                      </strong>
+                      <span className="block text-sm font-medium text-dark-5 dark:text-dark-6">
+                        {item.subTitle}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRepair(item.id)}
+                    disabled={isRepairing}
+                    className="shrink-0 rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isRepairing ? "..." : "Réparer"}
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
 
         <Link

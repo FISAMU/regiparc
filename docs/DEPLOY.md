@@ -75,6 +75,38 @@ Test : ouvre `https://YYYY.vercel.app` → connexion admin.
 
 ---
 
+## Email (Resend) — logo + anti-spam
+
+Sur Render, ajoute aussi :
+```
+FRONTEND_URL=https://YYYY.vercel.app
+EMAIL_LOGO_URL=https://YYYY.vercel.app/logo-regideso.png
+RESEND_API_KEY=re_...
+```
+
+Les emails de reset sont en **HTML** avec le logo REGIDESO.
+
+### Pourquoi ça tombe en Spam ?
+
+`onboarding@resend.dev` est un domaine de test partagé → Gmail le classe souvent en spam.
+Le HTML / logo **ne suffit pas** à sortir du spam.
+
+### Solution durable (domaine vérifié)
+
+1. [resend.com/domains](https://resend.com/domains) → **Add Domain** (ex. `regiparc.com` ou un sous-domaine)
+2. Ajoute les enregistrements DNS demandés (SPF + DKIM)
+3. Attends le statut **Verified**
+4. Sur Render :
+   ```
+   RESEND_FROM_EMAIL=RegiParc <noreply@votredomaine.com>
+   DEFAULT_FROM_EMAIL=RegiParc <noreply@votredomaine.com>
+   ```
+5. Redeploy + teste un reset
+
+En attendant : dans Gmail → Spam → **Signaler comme non-spam** (aide un peu pour ton adresse).
+
+---
+
 ## Mises à jour futures
 
 ```powershell

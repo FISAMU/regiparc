@@ -195,7 +195,7 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         import random
         from django.conf import settings
-        from apps.email_utils import send_app_email
+        from apps.email_utils import send_password_reset_email
 
         email = (request.data.get('email') or '').strip()
         if not email:
@@ -225,17 +225,14 @@ class PasswordResetRequestView(APIView):
         PasswordResetCode.objects.create(user=user, code=code)
 
         expiry = getattr(settings, 'PASSWORD_RESET_CODE_EXPIRY_MINUTES', 15)
-        subject = 'RegiParc — Code de réinitialisation du mot de passe'
-        body = (
-            f'Bonjour {user.first_name or user.username},\n\n'
-            f'Votre code de vérification RegiParc est : {code}\n\n'
-            f'Ce code est valide pendant {expiry} minutes.\n'
-            f'Si vous n\'avez pas demandé cette réinitialisation, ignorez ce message.\n\n'
-            f'— Équipe RegiParc'
-        )
 
         try:
-            send_app_email(to_email=user.email, subject=subject, body=body)
+            send_password_reset_email(
+                to_email=user.email,
+                first_name=user.first_name or user.username,
+                code=code,
+                expiry_minutes=expiry,
+            )
         except Exception as exc:
             import logging
 

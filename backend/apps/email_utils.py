@@ -5,8 +5,10 @@ Sur Render (free), le SMTP (port 587/465) est souvent bloqué → timeout.
 On privilégie Resend (API HTTPS :443) en production.
 En local, SMTP Gmail reste possible.
 
-Important Resend : un header User-Agent est OBLIGATOIRE
-(sinon Cloudflare renvoie 403 / error code 1010).
+Important Resend :
+- Un header User-Agent est OBLIGATOIRE (sinon Cloudflare 403 / code 1010).
+- Pour éviter le spam : vérifier un domaine dans Resend et envoyer depuis
+  ce domaine (pas onboarding@resend.dev).
 """
 from __future__ import annotations
 
@@ -16,16 +18,57 @@ import urllib.error
 import urllib.request
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
 
-def send_app_email(*, to_email: str, subject: str, body: str) -> None:
-    """Envoie un email texte. Lève une Exception en cas d'échec."""
+def send_password_reset_email(*, to_email: str, first_name: str, code: str, expiry_minutes: int) -> None:
+    """Email de reset MDP : HTML personnalisé (logo REGIDESO) + texte de secours."""
+    subject = "RegiParc — Code de réinitialisation du mot de passe"
+    greeting = first_name or "Utilisateur"
+    text_body = (
+        f"Bonjour {greeting},\n\n"
+        f"Votre code de vérification RegiParc est : {code}\n\n"
+        f"Ce code est valide pendant {expiry_minutes} minutes.\n"
+        f"Si vous n'avez pas demandé cette réinitialisation, ignorez ce message.\n\n"
+        f"— Équipe RegiParc · REGIDESO"
+    )
+    logo_url = (getattr(settings, "EMAIL_LOGO_URL", "") or "").strip()
+    html_body = render_to_string(
+        "emails/password_reset.html",
+        {
+            "first_name": greeting,
+            "code": code,
+            "expiry_minutes": expiry_minutes,
+            "logo_url": logo_url,
+        },
+    )
+    send_app_email(
+        to_email=to_email,
+        subject=subject,
+        body=text_body,
+        html_body=html_body,
+    )
+
+
+def send_app_email(
+    *,
+    to_email: str,
+    subject: str,
+    body: str,
+    html_body: str | None = None,
+) -> None:
+    """Envoie un email texte (+ HTML optionnel). Lève une Exception en cas d'échec."""
     resend_key = (getattr(settings, "RESEND_API_KEY", "") or "").strip()
     if resend_key:
-        _send_via_resend(to_email=to_email, subject=subject, body=body)
+        _send_via_resend(
+            to_email=to_email,
+            subject=subject,
+            body=body,
+            html_body=html_body,
+        )
         return
 
     if not getattr(settings, "DEBUG", False):
@@ -43,6 +86,17 @@ def send_app_email(*, to_email: str, subject: str, body: str) -> None:
             "En local: EMAIL_HOST_USER / EMAIL_HOST_PASSWORD. "
             "Sur Render: RESEND_API_KEY."
         )
+
+    if html_body:
+        message = EmailMultiAlternatives(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [to_email],
+        )
+        message.attach_alternative(html_body, "text/html")
+        message.send(fail_silently=False)
+        return
 
     send_mail(
         subject,
@@ -72,18 +126,34 @@ def _normalize_resend_from(from_email: str) -> str:
     return value
 
 
-def _send_via_resend(*, to_email: str, subject: str, body: str) -> None:
+def _send_via_resend(
+    *,
+    to_email: str,
+    subject: str,
+    body: str,
+    html_body: str | None = None,
+) -> None:
     from_email = _normalize_resend_from(
         getattr(settings, "RESEND_FROM_EMAIL", None)
         or getattr(settings, "DEFAULT_FROM_EMAIL", None)
         or "RegiParc <onboarding@resend.dev>"
     )
-    payload = {
+    payload: dict = {
         "from": from_email,
         "to": [to_email],
         "subject": subject,
         "text": body,
     }
+    if html_body:
+        payload["html"] = html_body
+
+    reply_to = (getattr(settings, "EMAIL_REPLY_TO", "") or "").strip()
+    if reply_to:
+        payload["reply_to"] = [reply_to]
+
+    # Tags utiles dans le dashboard Resend (pas affichés au destinataire)
+    payload["tags"] = [{"name": "app", "value": "regiparc"}]
+
     data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
         "https://api.resend.com/emails",
