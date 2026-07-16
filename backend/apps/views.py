@@ -234,6 +234,20 @@ class PasswordResetRequestView(APIView):
             f'— Équipe RegiParc'
         )
 
+        if not getattr(settings, 'EMAIL_HOST_USER', None) or not getattr(
+            settings, 'EMAIL_HOST_PASSWORD', None
+        ):
+            return Response(
+                {
+                    'error': (
+                        'SMTP non configuré sur le serveur. '
+                        'Ajoutez EMAIL_HOST_USER et EMAIL_HOST_PASSWORD '
+                        '(mot de passe d\'application Gmail) dans Render → Environment.'
+                    ),
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
         try:
             send_mail(
                 subject,
@@ -242,12 +256,18 @@ class PasswordResetRequestView(APIView):
                 [user.email],
                 fail_silently=False,
             )
-        except Exception:
+        except Exception as exc:
+            import logging
+
+            logging.getLogger(__name__).exception(
+                'Échec envoi email reset password: %s', exc
+            )
             return Response(
                 {
                     'error': (
                         'Impossible d\'envoyer l\'email pour le moment. '
-                        'Vérifiez la configuration SMTP du serveur.'
+                        'Vérifiez EMAIL_HOST_USER / EMAIL_HOST_PASSWORD sur Render '
+                        '(mot de passe d\'application Gmail, pas le mot de passe du compte).'
                     ),
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,

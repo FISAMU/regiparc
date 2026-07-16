@@ -219,12 +219,13 @@ JAZZMIN_UI_TUNER = {
     }
 }
 
-# Email — réinitialisation du mot de passe
+# Email — réinitialisation du mot de passe (SMTP Gmail)
 EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="").strip()
+# Mot de passe d'application Gmail : espaces acceptés à la saisie, retirés ici
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="").replace(" ", "")
 DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL",
     default=EMAIL_HOST_USER or "RegiParc <noreply@regiparc.local>",
