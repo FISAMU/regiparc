@@ -22,7 +22,7 @@ export default function SignIn() {
         <BackgroundSlider />
         
         {/* Dégradé bleu au-dessus de l'image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900 via-blue-700 to-blue-500 opacity-90"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1e2a38] via-[#2d3e50] to-[#445d7b] opacity-90"></div>
         
         {/* Contenu au-dessus du dégradé */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full p-6">

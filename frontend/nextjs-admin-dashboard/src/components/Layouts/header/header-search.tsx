@@ -109,10 +109,10 @@ export function HeaderSearch() {
             : "Rechercher un employé"
         }
         className={cn(
-          "flex w-full cursor-text items-center gap-3.5 rounded-full border border-white/20 bg-white/10 py-3 pr-5 pl-13.25 text-white outline-none transition-colors placeholder:text-white/60 focus-visible:border-white/40 focus-visible:bg-white/15",
+          "flex w-full cursor-text items-center gap-3.5 rounded-full border border-stroke bg-gray-2 py-3 pr-5 pl-13.25 text-dark outline-none transition-colors placeholder:text-dark-5 focus-visible:border-primary focus-visible:bg-white dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:placeholder:text-dark-6",
         )}
       />
-      <SearchIcon className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-white/70 max-[1015px]:size-5" />
+      <SearchIcon className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-dark-5 max-[1015px]:size-5 dark:text-dark-6" />
     </div>
   );
 }

@@ -79,7 +79,7 @@ export function Notification({ variant = "default" }: { variant?: "default" | "l
               className={cn(
                 "absolute -top-1.5 -right-1.5 flex min-h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold leading-none text-white",
                 variant === "light"
-                  ? "bg-red-500 ring-2 ring-[#0B10EE]"
+                  ? "bg-red-500 ring-2 ring-[#2d3e50]"
                   : "bg-red-500 ring-2 ring-gray-2 dark:ring-dark-3",
               )}
             >

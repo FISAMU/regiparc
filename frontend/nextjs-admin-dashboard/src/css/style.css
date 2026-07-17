@@ -14,7 +14,7 @@
   --color-current: currentColor;
   --color-transparent: transparent;
   --color-white: #ffffff;
-  --color-primary: #0B10EE;
+  --color-primary: #2d3e50;
   --color-stroke: #e6ebf1;
   --color-stroke-dark: #27303e;
 
@@ -59,14 +59,14 @@
   --color-red-light-6: #fef3f3;
   --color-red-light: #f56060;
 
-  --color-blue: #0B10EE;
-  --color-blue-dark: #080ca6;
+  --color-blue: #2d3e50;
+  --color-blue-dark: #1e2a38;
 
-  --color-blue-light-2: #5258f5;
-  --color-blue-light-3: #8a8ef8;
-  --color-blue-light-4: #b3b6fb;
-  --color-blue-light-5: #e1e2ff;
-  --color-blue-light: #2d33f0;
+  --color-blue-light-2: #445d7b;
+  --color-blue-light-3: #5a7391;
+  --color-blue-light-4: #8fa3b8;
+  --color-blue-light-5: #e8eef3;
+  --color-blue-light: #3a5068;
 
   --color-orange-light: #f59460;
 

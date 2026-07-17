@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
 
       <div className="relative hidden min-h-screen w-full overflow-hidden xl:block xl:w-1/2">
         <BackgroundSlider />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900 via-blue-700 to-blue-500 opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1e2a38] via-[#2d3e50] to-[#445d7b] opacity-90" />
         <div className="relative z-10 flex h-full flex-col items-center justify-center p-6">
           <div className="-mt-20 mb-12">
             <Image

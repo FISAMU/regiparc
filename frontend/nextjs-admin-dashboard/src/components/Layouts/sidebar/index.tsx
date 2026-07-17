@@ -55,7 +55,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "shrink-0 overflow-hidden border-r border-[#1B46C2] bg-gradient-to-b from-[#0B10EE] to-[#1D4ED8] transition-width duration-200 ease-linear",
+          "shrink-0 overflow-hidden border-r border-[#243342] bg-[#2d3e50] transition-width duration-200 ease-linear",
           isMobile ? "fixed bottom-0 top-0 z-50" : "sticky top-0 h-screen",
           isOpen
             ? isMobile
