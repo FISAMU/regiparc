@@ -1,8 +1,11 @@
-﻿/**
- * Proxy / middleware Next.js — protection des routes authentifiées.
+/**
+ * Middleware Next.js — protection des routes authentifiées.
  *
  * Si le cookie `auth_token` est absent → redirection vers /auth/sign-in.
  * Les pages auth et assets restent publiques.
+ *
+ * Note: on utilise middleware.ts (Edge) plutôt que proxy.ts (Node)
+ * pour éviter MIDDLEWARE_INVOCATION_FAILED sur Vercel / Next 16.
  */
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,16 +20,18 @@ const PUBLIC_PATHS = [
   "/logo-regideso.png",
 ];
 
-export async function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
   if (isPublic) return NextResponse.next();
+
   const authToken = request.cookies.get("auth_token")?.value;
   if (!authToken) {
     const signInUrl = new URL("/auth/sign-in", request.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);
   }
+
   return NextResponse.next();
 }
 
