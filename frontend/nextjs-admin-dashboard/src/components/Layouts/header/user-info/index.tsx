@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
+import { LogOutIcon, UserIcon } from "./icons";
 
 export function UserInfo({ variant = "default" }: { variant?: "default" | "light" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -115,17 +115,6 @@ export function UserInfo({ variant = "default" }: { variant?: "default" | "light
           >
             <UserIcon />
             <span className="mr-auto text-base font-medium">Mon profil</span>
-          </Link>
-
-          <Link
-            href="/profile"
-            onClick={() => setIsOpen(false)}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.25 ring-primary outline-0 hover:bg-gray-2 hover:text-dark focus-visible:ring-1 dark:hover:bg-dark-3 dark:hover:text-white"
-          >
-            <SettingsIcon />
-            <span className="mr-auto text-base font-medium">
-              Configurer le profil
-            </span>
           </Link>
         </div>
 
