@@ -44,7 +44,7 @@ from .serializers import (
     MeUpdateSerializer,
 )
 from .pagination import get_paginated_response, apply_search_filter
-from .presence import touch_user_presence, clear_user_presence, is_user_online
+from .presence import touch_user_presence, clear_user_presence
 
 User = get_user_model()
 
@@ -127,8 +127,7 @@ class LoginView(APIView):
             )
 
         token, _ = Token.objects.get_or_create(user=user)
-        touch_user_presence(user)
-        profile = getattr(user, 'profile', None)
+        profile = touch_user_presence(user)
         return Response({
             'token': token.key,
             'user': {
@@ -140,7 +139,8 @@ class LoginView(APIView):
                 'is_staff': user.is_staff,
                 'is_superuser': user.is_superuser,
                 'is_online': True,
-                'photo': profile.photo if profile and profile.photo else None,
+                'last_seen': profile.last_seen.isoformat() if profile.last_seen else None,
+                'photo': profile.photo if profile.photo else None,
             },
         })
 

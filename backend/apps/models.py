@@ -138,6 +138,8 @@ class UserProfile(models.Model):
         related_name="profile",
     )
     last_seen = models.DateTimeField(null=True, blank=True)
+    # True après un logout explicite (reste hors ligne même si last_seen est récent)
+    force_offline = models.BooleanField(default=False)
     photo = models.TextField(
         null=True,
         blank=True,

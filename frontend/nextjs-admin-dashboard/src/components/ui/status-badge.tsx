@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { formatTimeAgoFr } from "@/lib/format-time-ago";
 import {
   normalizeEquipmentEtat,
   type EquipmentEtat,
@@ -64,8 +65,20 @@ export function EquipmentStatusBadge({ etat }: { etat: string }) {
   );
 }
 
-export function ConnectionStatusBadge({ isOnline }: { isOnline: boolean }) {
+export function ConnectionStatusBadge({
+  isOnline,
+  lastSeen,
+}: {
+  isOnline: boolean;
+  lastSeen?: string | null;
+}) {
   const styles = isOnline ? CONNECTION_STYLES.online : CONNECTION_STYLES.offline;
+  const ago = formatTimeAgoFr(lastSeen);
+  const label = isOnline
+    ? "En ligne"
+    : ago
+      ? `Déconnecté ${ago}`
+      : "Hors ligne";
 
   return (
     <span
@@ -73,8 +86,9 @@ export function ConnectionStatusBadge({ isOnline }: { isOnline: boolean }) {
         "inline-flex items-center gap-2.5 rounded-full border px-3 py-1.5 text-sm font-medium",
         styles.badge,
       )}
+      title={lastSeen ? new Date(lastSeen).toLocaleString("fr-FR") : undefined}
     >
-      <span>{isOnline ? "En ligne" : "Hors ligne"}</span>
+      <span>{label}</span>
       <BlinkingStatusButton styles={styles} active={isOnline} />
     </span>
   );

@@ -34,6 +34,7 @@ export function UserInfo({ variant = "default" }: { variant?: "default" | "light
           email: me.email,
           username: me.username,
           is_online: me.is_online,
+          last_seen: me.last_seen ?? null,
         });
         setUser(authService.getUser());
       })
@@ -101,7 +102,10 @@ export function UserInfo({ variant = "default" }: { variant?: "default" | "light
             <div className="w-full max-w-47.5 truncate leading-none text-gray-6">
               {user.email}
             </div>
-            <ConnectionStatusBadge isOnline={user.is_online ?? true} />
+            <ConnectionStatusBadge
+              isOnline={user.is_online ?? true}
+              lastSeen={user.last_seen}
+            />
           </figcaption>
         </figure>
 

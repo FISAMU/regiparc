@@ -91,6 +91,7 @@ export interface AppUser {
   role: string;
   nom: string;
   is_online: boolean;
+  last_seen?: string | null;
   photo?: string | null;
 }
 

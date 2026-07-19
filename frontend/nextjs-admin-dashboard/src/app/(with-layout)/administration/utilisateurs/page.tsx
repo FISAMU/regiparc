@@ -193,7 +193,10 @@ export default async function UtilisateursPage({
                       </span>
                     </td>
                     <td className="px-4 py-5">
-                      <ConnectionStatusBadge isOnline={user.is_online} />
+                      <ConnectionStatusBadge
+                        isOnline={user.is_online}
+                        lastSeen={user.last_seen}
+                      />
                     </td>
                     <td className="px-4 py-5">
                       <div className="flex flex-wrap items-center gap-2">

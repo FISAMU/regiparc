@@ -9,7 +9,7 @@ Serializers DRF — conversion modèles ↔ JSON pour l'API RegiParc.
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Affectation, Categorie, Employe, Equipement, Maintenance, Service
-from .presence import is_user_online
+from .presence import is_user_online, get_last_seen_iso
 
 User = get_user_model()
 
@@ -74,6 +74,7 @@ class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
     nom = serializers.SerializerMethodField()
     is_online = serializers.SerializerMethodField()
+    last_seen = serializers.SerializerMethodField()
     photo = serializers.SerializerMethodField()
 
     class Meta:
@@ -91,9 +92,17 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
             'nom',
             'is_online',
+            'last_seen',
             'photo',
         ]
-        read_only_fields = ['id', 'date_joined', 'is_superuser', 'is_online', 'photo']
+        read_only_fields = [
+            'id',
+            'date_joined',
+            'is_superuser',
+            'is_online',
+            'last_seen',
+            'photo',
+        ]
 
     def get_role(self, obj):
         if obj.is_superuser:
@@ -108,6 +117,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_online(self, obj):
         return is_user_online(obj)
+
+    def get_last_seen(self, obj):
+        return get_last_seen_iso(obj)
 
     def get_photo(self, obj):
         profile = getattr(obj, 'profile', None)

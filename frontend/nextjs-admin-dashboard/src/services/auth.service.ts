@@ -15,6 +15,7 @@ export interface LoginResponse {
     is_staff: boolean;
     is_superuser: boolean;
     is_online?: boolean;
+    last_seen?: string | null;
     photo?: string | null;
   };
 }

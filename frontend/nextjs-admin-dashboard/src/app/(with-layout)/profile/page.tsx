@@ -51,7 +51,10 @@ export default async function ProfilePage() {
             Configurez vos informations personnelles et votre mot de passe.
           </p>
         </div>
-        <ConnectionStatusBadge isOnline={user.is_online} />
+        <ConnectionStatusBadge
+          isOnline={user.is_online}
+          lastSeen={user.last_seen}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
