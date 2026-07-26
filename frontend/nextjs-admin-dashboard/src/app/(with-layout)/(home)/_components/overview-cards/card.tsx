@@ -13,6 +13,8 @@ type PropsType = {
 
 export function OverviewCard({ label, data, Icon }: PropsType) {
   const isDecreasing = data.growthRate < 0;
+  const isFlat = data.growthRate === 0;
+  const signedRate = `${data.growthRate > 0 ? "+" : ""}${data.growthRate}%`;
 
   return (
     <div className="rounded-[10px] bg-white p-6 shadow-1 dark:bg-gray-dark">
@@ -30,21 +32,28 @@ export function OverviewCard({ label, data, Icon }: PropsType) {
         <dl
           className={cn(
             "text-sm font-medium",
-            isDecreasing ? "text-red" : "text-green",
+            isFlat ? "text-dark-5" : isDecreasing ? "text-red" : "text-green",
           )}
+          title="Variation des créations vs les 30 jours précédents"
         >
           <dt className="flex items-center gap-1.5">
-            {data.growthRate}%
-            {isDecreasing ? (
-              <ArrowDownIcon aria-hidden />
-            ) : (
-              <ArrowUpIcon aria-hidden />
-            )}
+            {signedRate}
+            {!isFlat &&
+              (isDecreasing ? (
+                <ArrowDownIcon aria-hidden />
+              ) : (
+                <ArrowUpIcon aria-hidden />
+              ))}
           </dt>
 
           <dd className="sr-only">
-            {label} {isDecreasing ? "Decreased" : "Increased"} by{" "}
-            {data.growthRate}%
+            {label}{" "}
+            {isFlat
+              ? "stable"
+              : isDecreasing
+                ? "en baisse"
+                : "en hausse"}{" "}
+            de {Math.abs(data.growthRate)}% sur 30 jours
           </dd>
         </dl>
       </div>

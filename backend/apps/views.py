@@ -16,6 +16,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import Q, Sum, Count
+from django.utils import timezone
+from datetime import timedelta
 from collections import Counter
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -339,6 +341,30 @@ def _get_overview_counts():
         return cursor.fetchone()
 
 
+def _period_growth_rate(model, date_field='dateCreation', days=30):
+    """
+    Variation % des créations sur les `days` derniers jours
+    vs les `days` précédents.
+    """
+    now = timezone.now()
+    current_start = now - timedelta(days=days)
+    previous_start = now - timedelta(days=days * 2)
+
+    current = model.objects.filter(
+        **{f'{date_field}__gte': current_start},
+    ).count()
+    previous = model.objects.filter(
+        **{
+            f'{date_field}__gte': previous_start,
+            f'{date_field}__lt': current_start,
+        },
+    ).count()
+
+    if previous == 0:
+        return 100 if current > 0 else 0
+    return round(((current - previous) / previous) * 100)
+
+
 def _build_overview_payload():
     (
         equipements_count,
@@ -350,12 +376,30 @@ def _build_overview_payload():
     ) = _get_overview_counts()
 
     return {
-        'equipements': {'value': equipements_count, 'growthRate': 0},
-        'employes': {'value': employes_count, 'growthRate': 0},
-        'maintenances': {'value': maintenance_total, 'growthRate': 0},
-        'services': {'value': services_count, 'growthRate': 0},
-        'affectations': {'value': affectations_count, 'growthRate': 0},
-        'categories': {'value': categories_count, 'growthRate': 0},
+        'equipements': {
+            'value': equipements_count,
+            'growthRate': _period_growth_rate(Equipement),
+        },
+        'employes': {
+            'value': employes_count,
+            'growthRate': _period_growth_rate(Employe),
+        },
+        'maintenances': {
+            'value': maintenance_total,
+            'growthRate': _period_growth_rate(Maintenance),
+        },
+        'services': {
+            'value': services_count,
+            'growthRate': _period_growth_rate(Service),
+        },
+        'affectations': {
+            'value': affectations_count,
+            'growthRate': _period_growth_rate(Affectation),
+        },
+        'categories': {
+            'value': categories_count,
+            'growthRate': _period_growth_rate(Categorie),
+        },
     }
 
 
