@@ -16,8 +16,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import Q, Sum, Count
-from django.utils import timezone
-from datetime import timedelta
 from collections import Counter
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -341,28 +339,11 @@ def _get_overview_counts():
         return cursor.fetchone()
 
 
-def _period_growth_rate(model, date_field='dateCreation', days=30):
-    """
-    Variation % des créations sur les `days` derniers jours
-    vs les `days` précédents.
-    """
-    now = timezone.now()
-    current_start = now - timedelta(days=days)
-    previous_start = now - timedelta(days=days * 2)
-
-    current = model.objects.filter(
-        **{f'{date_field}__gte': current_start},
-    ).count()
-    previous = model.objects.filter(
-        **{
-            f'{date_field}__gte': previous_start,
-            f'{date_field}__lt': current_start,
-        },
-    ).count()
-
-    if previous == 0:
-        return 100 if current > 0 else 0
-    return round(((current - previous) / previous) * 100)
+def _share_percent(value, total):
+    """Part en % d'une valeur dans le total (arrondi)."""
+    if not total:
+        return 0
+    return round((value / total) * 100)
 
 
 def _build_overview_payload():
@@ -375,30 +356,39 @@ def _build_overview_payload():
         categories_count,
     ) = _get_overview_counts()
 
+    total = (
+        equipements_count
+        + employes_count
+        + maintenance_total
+        + services_count
+        + affectations_count
+        + categories_count
+    )
+
     return {
         'equipements': {
             'value': equipements_count,
-            'growthRate': _period_growth_rate(Equipement),
+            'growthRate': _share_percent(equipements_count, total),
         },
         'employes': {
             'value': employes_count,
-            'growthRate': _period_growth_rate(Employe),
+            'growthRate': _share_percent(employes_count, total),
         },
         'maintenances': {
             'value': maintenance_total,
-            'growthRate': _period_growth_rate(Maintenance),
+            'growthRate': _share_percent(maintenance_total, total),
         },
         'services': {
             'value': services_count,
-            'growthRate': _period_growth_rate(Service),
+            'growthRate': _share_percent(services_count, total),
         },
         'affectations': {
             'value': affectations_count,
-            'growthRate': _period_growth_rate(Affectation),
+            'growthRate': _share_percent(affectations_count, total),
         },
         'categories': {
             'value': categories_count,
-            'growthRate': _period_growth_rate(Categorie),
+            'growthRate': _share_percent(categories_count, total),
         },
     }
 

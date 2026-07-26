@@ -1,4 +1,3 @@
-import { ArrowDownIcon, ArrowUpIcon } from "@/assets/icons";
 import { cn } from "@/lib/utils";
 import type { JSX, SVGProps } from "react";
 
@@ -12,10 +11,6 @@ type PropsType = {
 };
 
 export function OverviewCard({ label, data, Icon }: PropsType) {
-  const isDecreasing = data.growthRate < 0;
-  const isFlat = data.growthRate === 0;
-  const signedRate = `${data.growthRate > 0 ? "+" : ""}${data.growthRate}%`;
-
   return (
     <div className="rounded-[10px] bg-white p-6 shadow-1 dark:bg-gray-dark">
       <Icon />
@@ -30,30 +25,12 @@ export function OverviewCard({ label, data, Icon }: PropsType) {
         </dl>
 
         <dl
-          className={cn(
-            "text-sm font-medium",
-            isFlat ? "text-dark-5" : isDecreasing ? "text-red" : "text-green",
-          )}
-          title="Variation des créations vs les 30 jours précédents"
+          className={cn("text-sm font-medium text-primary")}
+          title="Part de cette rubrique dans le total du tableau de bord"
         >
-          <dt className="flex items-center gap-1.5">
-            {signedRate}
-            {!isFlat &&
-              (isDecreasing ? (
-                <ArrowDownIcon aria-hidden />
-              ) : (
-                <ArrowUpIcon aria-hidden />
-              ))}
-          </dt>
-
+          <dt>{data.growthRate}%</dt>
           <dd className="sr-only">
-            {label}{" "}
-            {isFlat
-              ? "stable"
-              : isDecreasing
-                ? "en baisse"
-                : "en hausse"}{" "}
-            de {Math.abs(data.growthRate)}% sur 30 jours
+            {label} représente {data.growthRate}% du total
           </dd>
         </dl>
       </div>
